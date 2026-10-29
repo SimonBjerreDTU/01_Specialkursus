@@ -1,0 +1,605 @@
+% Nodal DG-FEM for the spherical linear advection equation
+%
+% By Allan Peter Engsig-Karup, apek@dtu.dk
+close all
+clear; 
+clc;
+Globals2D;
+
+%Polynomial order
+N = 4;
+
+IC = 1;
+%Icosahedral type
+generation = 3;
+type = 'ico';
+
+% directional metric coefficients
+v_lambda = 0.4*0;%0.4*0; % longitudinal advection speed
+v_phi    = 0.4; % lattitudinal advection speed
+
+% Define Gaussian center in spherical coordinates
+lambda0 = deg2rad(295); % center longitude in radians
+theta0 = deg2rad(0);    % center colatitude (0 at north pole)
+% Sigma controls spread (radians)
+sigma = deg2rad(10);    % e.g., 15 degrees standard deviation
+
+% Generate spherical mesh 
+[P, tri] = generateSphereMesh(generation, type);
+EToV = tri;
+K = size(EToV,1);
+
+%Cartesian coordinates
+%x_coor = P(1,:)'; 
+%y_coor = P(2,:)'; 
+%z_coor = P(3,:)';
+
+%spherical coordinates
+%r1 = sqrt(x_coor.^2 + y_coor.^2 + z_coor.^2);
+%theta = acos(z_coor ./ r1);
+%phi = atan2(y_coor, x_coor);
+
+%VX = phi';                      
+%VY = theta';
+VX = P(1,:);
+VY = P(2,:);
+VZ = P(3,:);
+EToV = tri;
+
+% Initialize reference element
+StartUp2D;
+%wer 
+MassMatrix2D = MassMatrix;
+
+%Initialize area
+total_area = 0;
+
+x3D = zeros(length(r(:)),K);
+y3D = zeros(length(r(:)),K);
+z3D = zeros(length(r(:)),K);
+
+% Cartesian metrix coefficients
+rx2D = zeros(length(r(:)),K);
+ry2D = zeros(length(r(:)),K);
+sx2D = zeros(length(r(:)),K);
+sy2D = zeros(length(r(:)),K);
+rz2D = zeros(length(r(:)),K);
+sz2D = zeros(length(r(:)),K);
+
+% Contravariant metric coefficients
+g11_2D = zeros(length(r(:)),K);
+g12_2D = zeros(length(r(:)),K);
+g22_2D = zeros(length(r(:)),K);
+
+% Spherical surface Jacobian
+J2D = zeros(length(r(:)),K);
+
+xr2D = zeros(length(r(:)),K);
+xs2D = zeros(length(r(:)),K);
+yr2D = zeros(length(r(:)),K);
+ys2D = zeros(length(r(:)),K);
+zr2D = zeros(length(r(:)),K);
+zs2D = zeros(length(r(:)),K);
+
+rv2D = zeros(length(r(:)),K);
+sv2D = zeros(length(r(:)),K);
+
+for k = 1:K
+    % Get vertices of triangle k
+    v1 = P(:, EToV(k,1));
+    v2 = P(:, EToV(k,2));
+    v3 = P(:, EToV(k,3));
+
+    % Map from reference to physical triangle
+    x = 0.5*(-(r+s)*v1(1) + (1+r)*v2(1) + (1+s)*v3(1));
+    y = 0.5*(-(r+s)*v1(2) + (1+r)*v2(2) + (1+s)*v3(2));
+    z = 0.5*(-(r+s)*v1(3) + (1+r)*v2(3) + (1+s)*v3(3));
+
+    % Project to sphere
+    norms = sqrt(x.^2 + y.^2 + z.^2);
+    x = x ./ norms;
+    y = y ./ norms;
+    z = z ./ norms;
+
+    % Store nodes in array
+    x3D(:,k) = x(:);
+    y3D(:,k) = y(:);
+    z3D(:,k) = z(:);
+
+    % Geometric factors
+    xr = Dr*x; xs = Ds*x; 
+    yr = Dr*y; ys = Ds*y; 
+    zr = Dr*z; zs = Ds*z;
+
+    %Metric tensor
+    g11 = xr.^2 + yr.^2 + zr.^2;
+    g12 = xr.*xs + yr.*ys + zr.*zs;
+    g21 = xr.*xs + yr.*ys + zr.*zs;
+    g22 = xs.^2 + ys.^2 + zs.^2;
+    
+    % Metric tensor components
+    g11_2D(:,k) = g11(:);
+    g12_2D(:,k) = g12(:);
+    g22_2D(:,k) = g22(:);
+
+    %Surface Jacobian
+    J   = sqrt(g11.*g22 - g12.^2);
+    J2D(:,k) = J(:);
+
+    lambda_nodes = atan2(y, x);
+    theta_nodes = acos(z);
+    
+    sin_theta = sin(theta_nodes);
+    cos_theta = cos(theta_nodes);
+    cos_lambda = cos(lambda_nodes);
+    sin_lambda = sin(lambda_nodes);
+    
+    invDetG = 1 ./ (J.^2);
+    g11c =  g22 .* invDetG;
+    g22c =  g11 .* invDetG;
+    g12c = -g12 .* invDetG;
+    g21c = g12c;
+
+    if 1
+        % compute by scaling the unit vectors in the cartesian directions
+        v_x = v_lambda * (-sin_lambda) + v_phi * cos_theta .* cos_lambda;
+        v_y = v_lambda * (+cos_lambda) + v_phi * cos_theta .* sin_lambda;
+        v_z = v_lambda * (0)           + v_phi * (-sin_theta);
+
+    else
+        %wer % apparently not working
+        % https://chatgpt.com/c/6874ed1a-28f4-800c-9ff7-1a5aa2c5f228
+
+        % Instead of computing lambda_nodes and theta_nodes
+        % define velocity in Cartesian coordinates directly:
+
+        % Example: rotation about Z axis with angular speed omega
+        omega = 0.4;
+        v_x = -omega * y;
+        v_y = +omega * x;
+        v_z = zeros(size(x));
+    end
+
+    alpha_r = v_x .* xr + v_y .* yr + v_z .* zr;
+    alpha_s = v_x .* xs + v_y .* ys + v_z .* zs;
+
+    % form the advection speed in the directional operator
+    rv = alpha_r.*g11c + alpha_s.*g21c;
+    sv = alpha_r.*g12c + alpha_s.*g22c;
+    rv2D(:,k) = rv(:);
+    sv2D(:,k) = sv(:);
+
+    %GeometricFactors3D
+    rx = ys./J; 
+    sx =-yr./J; 
+    ry =-xs./J; 
+    sy = xr./J;
+
+    rx2D(:,k) = rx(:);
+    ry2D(:,k) = ry(:);
+    %rz2D(:,k) = rz(:);
+    sx2D(:,k) = sx(:);
+    sy2D(:,k) = sy(:);   
+    %sz2D(:,k) = sz(:);
+
+    % Scale mass matrix
+    M_k = diag(J)*MassMatrix;
+
+     %Total area
+    total_area = total_area +sum(sum(M_k));
+end
+
+% --- Output ---
+disp('Check mass matrix and jacobians by integrating at the sphere surface')
+fprintf('Exact area is 4*pi : %.8f\n', 4*pi);
+fprintf('Computed total area: %.8f\n', total_area);
+
+%% SPECTRAL ELEMENT OPERATORS
+
+%% GENERATE CONNECTIVITY TABLE
+% create connectivity list with global numbers for each local degree of freedom
+VX = P(1,:)';
+VY = P(2,:)';
+VZ = P(3,:)';
+EToV = tri;
+% [c,gidx,X2D,Y2D,FaceValues1D] = ConstructConnectivityTable2D(VX,VY,EToV,P,x,y,varargin)
+[c2D,gidx2D,X2D,Y2D,Z2D] = ConstructConnectivityTable2DSphere(VX,VY,VZ,EToV,N,x3D,y3D,z3D);
+Nk2D = K;
+Np2D = length(r(:));
+Dr2D = Dr;
+Ds2D = Ds;
+[M2D]  = GlobalAssemblySEMnDFULLsimple(Nk2D,Np2D,c2D,@massmatrixsimple,J2D,MassMatrix2D);
+[Sx2D] = GlobalAssemblySEMnDFULLsimple(Nk2D,Np2D,c2D,@advectionmatrix2Dsimple,J2D,MassMatrix2D,rx2D,sx2D,Dr2D,Ds2D);
+[Sy2D] = GlobalAssemblySEMnDFULLsimple(Nk2D,Np2D,c2D,@advectionmatrix2Dsimple,J2D,MassMatrix2D,ry2D,sy2D,Dr2D,Ds2D);
+[Sz2D] = GlobalAssemblySEMnDFULLsimple(Nk2D,Np2D,c2D,@advectionmatrix2Dsimple,J2D,MassMatrix2D,zr2D,zs2D,Dr2D,Ds2D);
+%[Sx3D] = GlobalAssemblySEMnDFULLsimple(Nk3D,Np3D,c3D,@advectionmatrix3Dsimple,J3D,MassMatrix3D,rx3D,sx3D,tx3D,Dr3D,Ds3D,Dt3D);
+%[Sy3D] = GlobalAssemblySEMnDFULLsimple(Nk3D,Np3D,c3D,@advectionmatrix3Dsimple,J3D,MassMatrix3D,ry3D,sy3D,ty3D,Dr3D,Ds3D,Dt3D);
+%[Sz3D] = GlobalAssemblySEMnDFULLsimple(Nk3D,Np3D,c3D,@advectionmatrix3Dsimple,J3D,MassMatrix3D,rz3D,sz3D,tz3D,Dr3D,Ds3D,Dt3D);
+DMx2D = @(xxx) M2D \ ( Sx2D * xxx(:) );
+DMy2D = @(xxx) M2D \ ( Sy2D * xxx(:) );
+DMz2D = @(xxx) M2D \ ( Sz2D * xxx(:) );
+%DMx3D = @(xxx) M3D \ ( Sx3D * xxx(:) );
+%DMy3D = @(xxx) M3D \ ( Sy3D * xxx(:) );
+%DMz3D = @(xxx) M3D \ ( Sz3D * xxx(:) );
+
+% Check if mass matrix is correct
+u = X2D*0+1;
+disp(sprintf('SEM, sphere area   : %.8f',sum(M2D*u(:))))
+
+
+%% Differentiation in Longitude and Latitude Directions
+
+% Directional derivative operator
+[Sdir2D] = GlobalAssemblySEMnDFULLsimple(Nk2D,Np2D,c2D,...
+  @directional_advection_matrix2Dsimple,...
+  J2D, MassMatrix2D, rv2D, sv2D, Dr2D, Ds2D);
+
+Ddir2D = @(ff) M2D \ (Sdir2D * ff(:));
+
+%        omega = 0.4;
+%v_x = -omega * Y2D(:);
+%v_y = +omega * X2D(:);
+%v_z = zeros(size(X2D(:)));
+%Ddir2D = @(u) v_x(:).*DMx2D(u(:)) + v_y(:).*DMy2D(u(:)) + v_z(:).*DMz2D(u(:));
+
+%% === Test directional derivative operator ===
+
+% Compute spherical coordinates at global nodes
+lambda_nodes2D = atan2(Y2D(:), X2D(:));
+theta_nodes2D  = acos(Z2D(:));
+
+sin_theta2D  = sin(theta_nodes2D);
+cos_theta2D  = cos(theta_nodes2D);
+sin_lambda2D = sin(lambda_nodes2D);
+cos_lambda2D = cos(lambda_nodes2D);
+
+% Convert to Cartesian
+v_x = v_lambda * (-sin_lambda2D) + v_phi * cos_theta2D .* cos_lambda2D;
+v_y = v_lambda * (+cos_lambda2D) + v_phi * cos_theta2D .* sin_lambda2D;
+v_z = v_lambda * (0)             + v_phi * (-sin_theta2D);
+
+% Define the test function f = sin(theta) * cos(lambda)
+if IC
+    f_test = sin_theta2D .* cos_lambda2D;
+    % Partial derivatives of f with respect to theta and lambda
+    df_dtheta = cos_theta2D .* cos_lambda2D;      % df/dtheta
+    df_dlambda = -sin_theta2D .* sin_lambda2D;    % df/dlambda
+
+else
+    %% === Define Gaussian function on the sphere ===
+
+    % Define Gaussian center in spherical coordinates
+    %lambda0 = deg2rad(245);   % center longitude in radians
+    %theta0 = deg2rad(60);    % center colatitude (0 at north pole)
+
+    % Convert center to Cartesian coordinates
+    xc = [ sin(theta0)*cos(lambda0);
+           sin(theta0)*sin(lambda0);
+           cos(theta0) ];
+
+    % Sigma controls spread (radians)
+    % sigma = deg2rad(10);  % e.g., 15 degrees standard deviation
+
+    % Compute dot product of all nodes with center
+    x_nodes = [X2D(:), Y2D(:), Z2D(:)];
+    dotp = x_nodes * xc;
+
+    % Ensure within [-1,1] to avoid acos issues
+    dotp = min(max(dotp, -1), 1);
+
+    % Compute angular distance to center
+    alpha = acos(dotp);
+
+    % Evaluate Gaussian
+    f_test = exp( -0.5 * (alpha./sigma).^2 );
+
+    % For derivatives
+    C = sin(theta_nodes2D).*sin(theta0).*cos(lambda_nodes2D - lambda0) + cos(theta_nodes2D).*cos(theta0);
+    C = min(max(C, -1), 1);
+    alpha = acos(C);
+    sqrt1mC2 = sqrt(1 - C.^2);
+
+    prefactor = (alpha ./ sigma^2) .* exp(-0.5*(alpha./sigma).^2) ./ sqrt1mC2;
+
+    df_dtheta = prefactor .* ( ...
+        cos(theta_nodes2D).*sin(theta0).*cos(lambda_nodes2D - lambda0) ...
+        - sin(theta_nodes2D).*cos(theta0) );
+
+    df_dlambda = ...
+    -prefactor .* (sin(theta_nodes2D).*sin(theta0).*sin(lambda_nodes2D - lambda0));
+
+end
+% Apply directional derivative operator
+df_numeric = Ddir2D(f_test);
+
+% Compute the exact directional derivative:
+% For v = e_lambda: df = sin(theta) * d/dlambda f
+% d/dlambda f = -sin(theta) * sin(lambda)
+% So the directional derivative is:
+%   -sin^2(theta) * sin(lambda)
+% df_exact = - (sin_theta2D).^2 .* sin_lambda2D;
+% Compute gradient of f in Cartesian coordinates
+% Recall:
+% f = sin(theta)*cos(lambda)
+% where:
+% theta = acos(z)
+% lambda = atan2(y,x)
+
+
+% Gradients of theta and lambda in Cartesian coordinates
+% grad(theta):
+%grad_theta_x = -X2D(:).*Z2D(:)./sqrt(1 - Z2D(:).^2);
+%grad_theta_y = -Y2D(:).*Z2D(:)./sqrt(1 - Z2D(:).^2);
+%grad_theta_z = -sqrt(1 - Z2D(:).^2);
+
+% Correct grad(theta):
+grad_theta_x = zeros(size(X2D(:)));
+grad_theta_y = zeros(size(Y2D(:)));
+grad_theta_z = -1 ./ sqrt(1 - Z2D(:).^2);
+
+% Correct grad(lambda):
+denomXY = X2D(:).^2 + Y2D(:).^2;
+denomXY(denomXY<1e-12) = 1e-12;   % avoid zero division near poles
+grad_lambda_x = -Y2D(:) ./ denomXY;
+grad_lambda_y = +X2D(:) ./ denomXY;
+grad_lambda_z = zeros(size(X2D(:)));
+
+% Combine via chain rule:
+grad_f_x = df_dtheta .* grad_theta_x + df_dlambda .* grad_lambda_x;
+grad_f_y = df_dtheta .* grad_theta_y + df_dlambda .* grad_lambda_y;
+grad_f_z = df_dtheta .* grad_theta_z + df_dlambda .* grad_lambda_z;
+
+df_exact = grad_f_x .* v_x + grad_f_y .* v_y + grad_f_z .* v_z;
+
+if 0
+    epsilon = 1e-6;
+
+% Perturb along v vector:
+x_pert = X2D(:) + epsilon * v_x;
+y_pert = Y2D(:) + epsilon * v_y;
+z_pert = Z2D(:) + epsilon * v_z;
+
+% Re-normalize to unit sphere:
+norms = sqrt(x_pert.^2 + y_pert.^2 + z_pert.^2);
+x_pert = x_pert ./ norms;
+y_pert = y_pert ./ norms;
+z_pert = z_pert ./ norms;
+
+% Convert to spherical coordinates:
+lambda_pert = atan2(y_pert, x_pert);
+theta_pert  = acos(z_pert);
+
+% Evaluate f at perturbed points:
+C_pert = sin(theta_pert).*sin(theta0).*cos(lambda_pert - lambda0) + cos(theta_pert).*cos(theta0);
+C_pert = min(max(C_pert, -1),1);
+alpha_pert = acos(C_pert);
+f_pert = exp(-0.5*(alpha_pert/sigma).^2);
+
+% Finite difference derivative:
+df_fd = (f_pert - f_test) / epsilon;
+l2_error_fd = sqrt(mean((df_fd - df_exact).^2));
+fprintf('L2 error vs finite diff: %.3e\n', l2_error_fd);
+
+epsilon = 1e-6;
+
+theta_pert  = theta_nodes2D + epsilon;
+lambda_pert = lambda_nodes2D;
+
+C_pert_theta = sin(theta_pert).*sin(theta0).*cos(lambda_pert - lambda0) + cos(theta_pert).*cos(theta0);
+C_pert_theta = min(max(C_pert_theta, -1),1);
+alpha_pert_theta = acos(C_pert_theta);
+f_pert_theta = exp(-0.5*(alpha_pert_theta/sigma).^2);
+
+df_dtheta_fd = (f_pert_theta - f_test) / epsilon;
+
+theta_pert = theta_nodes2D;
+lambda_pert = lambda_nodes2D + epsilon;
+
+C_pert_lambda = sin(theta_pert).*sin(theta0).*cos(lambda_pert - lambda0) + cos(theta_pert).*cos(theta0);
+C_pert_lambda = min(max(C_pert_lambda, -1),1);
+alpha_pert_lambda = acos(C_pert_lambda);
+f_pert_lambda = exp(-0.5*(alpha_pert_lambda/sigma).^2);
+
+df_dlambda_fd = (f_pert_lambda - f_test) / epsilon;
+
+err_theta = sqrt(mean((df_dtheta - df_dtheta_fd).^2));
+err_lambda = sqrt(mean((df_dlambda - df_dlambda_fd).^2));
+
+fprintf('L2 error in df/dtheta vs finite diff: %.3e\n', err_theta);
+fprintf('L2 error in df/dlambda vs finite diff: %.3e\n', err_lambda);
+
+%    wer
+end
+
+% Compute norms and L2 error
+norm_num = norm(df_numeric);
+norm_exact = norm(df_exact);
+l2_error = sqrt(mean((df_numeric - df_exact).^2));
+
+fprintf('\n--- Directional Derivative Test ---\n');
+fprintf('Norm of numerical derivative: %.6e\n', norm_num);
+fprintf('Norm of exact derivative:     %.6e\n', norm_exact);
+fprintf('Relative norm difference:     %.2f%%\n', 100 * abs(norm_num - norm_exact)/norm_exact);
+fprintf('L2 error:                     %.3e\n', l2_error);
+
+%df_numeric = grad_f_x;
+%df_exact   = grad_f_z;
+
+% Visualize the numerical and exact derivatives and their error
+figure;
+subplot(1,3,1);
+scatter3(X2D(:), Y2D(:), Z2D(:), 15, df_numeric, 'filled');
+axis equal; colorbar;
+title('Numerical derivative');
+
+subplot(1,3,2);
+scatter3(X2D(:), Y2D(:), Z2D(:), 15, df_exact, 'filled');
+axis equal; colorbar;
+title('Exact derivative');
+
+subplot(1,3,3);
+scatter3(X2D(:), Y2D(:), Z2D(:), 15, df_numeric - df_exact, 'filled');
+axis equal; colorbar;
+title('Error (numerical - exact)');
+
+return
+figure
+scatter3(X2D(:), Y2D(:), Z2D(:), 15, f_test, 'filled');
+axis equal; colorbar;
+title('Solution')
+
+%% === Visualize solution as surface and lat-lon plot ===
+
+% Compute spherical coordinates of the global nodes
+lambda_nodes = atan2(Y2D(:), X2D(:));         % longitude in radians [-pi, pi]
+theta_nodes = acos(Z2D(:));                   % colatitude in radians [0, pi]
+latitude_nodes = pi/2 - theta_nodes;          % latitude in radians [-pi/2, +pi/2]
+
+% Create regular grid in longitude and latitude
+n_lon = 360;      % number of longitude samples
+n_lat = 180;      % number of latitude samples
+lon_grid = linspace(-pi, pi, n_lon);            % longitude grid
+lat_grid = linspace(-pi/2, pi/2, n_lat);        % latitude grid
+[Lon, Lat] = meshgrid(lon_grid, lat_grid);
+
+% Interpolate solution onto the grid
+F_interp = scatteredInterpolant(lambda_nodes, latitude_nodes, f_test(:), 'linear', 'nearest');
+F_grid = F_interp(Lon, Lat);
+
+% Convert grid to Cartesian coordinates for 3D surface plot
+X_surf = cos(Lat).*cos(Lon);
+Y_surf = cos(Lat).*sin(Lon);
+Z_surf = sin(Lat);
+
+%% 3D surface plot
+figure;
+surf(X_surf, Y_surf, Z_surf, F_grid, 'EdgeColor', 'none');
+axis equal off;
+xlabel('X'); ylabel('Y'); zlabel('Z');
+title('Solution on sphere surface');
+colorbar;
+shading interp;
+lighting gouraud;
+camlight headlight;
+
+%% 2D latitude–longitude projection
+figure;
+imagesc(lon_grid*180/pi, lat_grid*180/pi, F_grid);
+axis xy;
+xlabel('Longitude (deg)');
+ylabel('Latitude (deg)');
+title('Solution in latitude-longitude projection');
+colorbar;
+return
+
+pause
+close all
+
+%Globals2D;
+time=0;
+
+%runge-Kutta resiual storage
+resu=X2D(:)*0; %;zeros(Np,K);
+rhsu=X2D(:)*0;
+
+%Compute time step size
+%rLGL=JacobiGQ(0,0,N);
+%rmin=abs(rLGL(1)-rLGL(2));
+%dtscale=dtscale2D;
+%dt=min(dtscale)*rmin*2/3;
+
+u = X2D(:)*0;
+u(:) = f_test(:);
+dt = 0.02;
+%FinalTime = 2.0;
+%FinalTime = 2*pi / v_lambda;% v_phi;
+FinalTime = 2*pi / v_phi;% v_phi;
+Nsteps = round(FinalTime/dt);
+dt = FinalTime/Nsteps;
+
+div_v = DMx2D(v_x) + DMy2D(v_y) + DMz2D(v_z);
+
+frames = {};   % cell array to collect frames
+cmin = min(u(:));
+cmax = max(u(:));
+padding = 0.05*(cmax - cmin);
+cmin = cmin - padding;
+cmax = cmax + padding;
+
+%outer time step loop
+tstep=0;
+while(time<FinalTime)
+    tstep=tstep+1;
+    if(time+dt>FinalTime)
+        dt=FinalTime-time;
+    end
+
+    for INTRK=1:5
+        % rhsu = Advec2d_sphereRHS(u, c_phi, c_theta);
+        %rhsu = Ddir2D(u);
+        rhsu(:) = -( Ddir2D(u(:)) + u(:) .* div_v(:) );
+        resu = rk4a(INTRK) * resu + dt * rhsu;
+        u = u + rk4b(INTRK) * resu;
+
+    end
+
+    %increment time
+    time=time+dt;
+    if mod(tstep,10)==0
+        figure(98)
+        if 0
+            scatter3(X2D(:), Y2D(:), Z2D(:), 15, u(:), 'filled');
+            axis equal;
+            xlim([-1 1]);
+            ylim([-1 1]);
+            zlim([-1 1]);
+            xlabel('X');
+            ylabel('Y');
+            zlabel('Z');
+            colorbar;
+            title(sprintf('Solution, time: %.4f',time));
+            drawnow
+        else
+            % Interpolate solution onto the grid
+            F_interp = scatteredInterpolant(lambda_nodes, latitude_nodes, u(:), 'linear', 'nearest');
+            u_grid = F_interp(Lon, Lat);
+            surf(X_surf, Y_surf, Z_surf, u_grid, 'EdgeColor', 'none');
+%            surf(X_surf, Y_surf, Z_surf, F_grid, 'EdgeColor', 'none');
+            axis equal off;
+            xlabel('X'); ylabel('Y'); zlabel('Z');
+            title(sprintf('Solution, time: %.4f, step:%d/%d',time,tstep,Nsteps));
+            %title('Solution on sphere surface');
+            %colorbar;
+            shading interp;
+            lighting gouraud;
+            %camlight headlight;
+            axis tight
+            caxis([cmin cmax]);   % <-- fix the color range here
+%colorbar;            
+            drawnow
+        end
+
+        % Capture the frame
+        frame = getframe(gcf);
+        img = frame2im(frame);
+        frames{end+1} = img;
+
+    end
+end
+
+gif_filename = 'SEMsphere2Dadvection_simulation.gif';
+
+for k = 1:length(frames)
+    [A,map] = rgb2ind(frames{k},256);
+    if k==1
+        imwrite(A,map,gif_filename,'gif','LoopCount',Inf,'DelayTime',0.2);
+    else
+        imwrite(A,map,gif_filename,'gif','WriteMode','append','DelayTime',0.2);
+    end
+end
+
+fprintf('Animated GIF saved to: %s\n', gif_filename);
+
+return
+
+
