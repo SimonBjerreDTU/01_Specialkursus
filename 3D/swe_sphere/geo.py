@@ -43,7 +43,7 @@ class SphereGrid:
 
         self.J = R**2/X_norm**3 * dot_prod(X, cross_prod(X_xi, X_eta))
         J_xi = R/X_norm**2 * cross_prod(X_eta, X)
-        J_eta = R/X_norm**2 * cross_prod(X, X_eta)
+        J_eta = R/X_norm**2 * cross_prod(X, X_xi)
         self.gxi = J_xi/self.J
         self.geta = J_eta/self.J
 
@@ -51,7 +51,7 @@ class SphereGrid:
         self.diag_mass = w[:, None] * w[None, :] *self.J
 
         self.lon = np.arctan2(self.x[1], self.x[0])
-        self.lat = np.arcsin(np.clip(self.x[2]/R, -1, -1))
+        self.lat = np.arcsin(np.clip(self.x[2]/R, -1, 1))
 
     def edge_geo(self):
         K, Nq, Np = self.K, self.Nq, self.Np
@@ -80,10 +80,10 @@ class SphereGrid:
         n_edge = self.vmapInterior.size
         self.lift_matrix = csr_matrix((self.lift.ravel(), (self.vmapInterior.ravel(), np.arange(n_edge))), shape=(K*Np, n_edge))
 
-    def unique_nodes(self):
+    def uni_nodes(self):
         pts = self.x.reshape(3, -1).T/self.R
         unique_x, node_id = merge_points(pts, tol=1e-8)
-        self.unique_x = unique_x/self.R
+        self.unique_x = unique_x*self.R
         self.node_id = node_id.reshape(self.K, self.Nq, self.Nq)
 
     # === Fields ===
