@@ -1,10 +1,5 @@
-# Test 6: a 10 m Gaussian hump at the north pole on an Earth-sized, 4 km deep ocean.
-# The hump is axisymmetric, so the exact solution is a Legendre series
-#   zeta(mu, t) = sum_l a_l P_l(mu) cos(w_l t),   w_l = sqrt(g D l(l+1)) / R,
-# where mu = z/R and a_l are the Legendre coefficients of zeta0.
-# The wave focuses at the south pole at about t = pi R / c.
-
 import sys
+import time
 from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
@@ -14,14 +9,20 @@ from swe_sphere.geo import SphereGrid
 from swe_sphere.dg import DG, LinearSWE
 
 R, g, D = 6.371e6, 9.81, 4000.0
-A, sigma = 10.0, 800e3     # amplitude [m] and width [m]
+A, sigma = 10.0, 800e3
 nI = 4
-N_plot = 6                 # order used for the propagation run
-Ns = range(3, 7)           # orders for the p-convergence
-n_frames = 100             # saved 3D frames in the propagation run (plus t = 0)
+N_plot = 4
+Ns = range(3, 9)
+n_frames = 100
 c = np.sqrt(g * D)
-T = 40*3600          # arrival time at the south pole
-L_max = 200                # terms in the exact series
+T = 50*3600
+L_max = 200
+
+# Start the bump not at the poles
+lat0, lon0 = np.radians(30.0), np.radians(140.0)
+centre = np.array([np.cos(lat0) * np.cos(lon0),
+                   np.cos(lat0) * np.sin(lon0),
+                   np.sin(lat0)])
 
 def zeta0(mu):
     theta = np.arccos(np.clip(mu, -1, 1))
@@ -51,19 +52,23 @@ print(f"c = {c:.1f} m/s, T = {T/3600:.2f} h, last coefficient |a_L| = {abs(a[-1]
 # --- p-convergence at t = T ---
 errs = []
 for N in Ns:
+    start_time = time.time()
+    print(f"Starting N={N} at time: {start_time}")
     grid = SphereGrid(nI, N, R)
     solver = DG(grid, LinearSWE(g, D))
-    mu = grid.x[2] / R
+    mu = np.tensordot(centre, grid.x, axes=1) / R
     q = np.zeros((4, grid.K, grid.Nq, grid.Nq))
     q[0] = zeta0(mu)
     q = solver.run(q, T)
     errs.append(np.abs(q[0] - exact(mu, T)).max())
+    end_time = time.time()
     print(f"N={N}  max err at T = {errs[-1]:.2e} m")
+    print(f"Compute time: {end_time-start_time}")
 
 # --- propagation run for N = N_plot, saving the 3D field at every frame ---
 grid = SphereGrid(nI, N_plot, R)
 solver = DG(grid, LinearSWE(g, D))
-mu = grid.x[2] / R
+mu = np.tensordot(centre, grid.x, axes=1) / R
 
 times = np.linspace(0, T, n_frames + 1)
 q = np.zeros((4, grid.K, grid.Nq, grid.Nq))
@@ -101,7 +106,7 @@ for ax, k in zip(axes, snap):
     ax.set_title(f"t = {times[k]/3600:.1f} h", fontsize=10)
     ax.grid(alpha=0.3)
 axes[0].legend(loc="upper right")
-axes[-1].set_xlabel("angular distance from north pole [deg]")
+axes[-1].set_xlabel("angular distance from hump centre [deg]")
 fig.suptitle(f"Gaussian hump, A={A:.0f} m, $\\sigma$={sigma/1e3:.0f} km, $n_I$={nI}, N={N_plot}, K={grid.K}")
 fig.tight_layout()
 fig.savefig(Path(__file__).with_name("gaussian_hump_snapshots.png"), dpi=150)
