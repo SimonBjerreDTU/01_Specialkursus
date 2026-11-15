@@ -10,9 +10,8 @@ from swe_sphere.dg import DG, LinearSWE
 
 R, g, D = 6.371e6, 9.81, 4000.0
 A, sigma = 10.0, 800e3
-nI = 4
-N_plot = 4
-Ns = range(3, 9)
+N = 4
+nIs = range(2, 7)
 n_frames = 100
 c = np.sqrt(g * D)
 T = 50*3600
@@ -51,9 +50,9 @@ print(f"c = {c:.1f} m/s, T = {T/3600:.2f} h, last coefficient |a_L| = {abs(a[-1]
 
 # --- p-convergence at t = T ---
 errs = []
-for N in Ns:
+for nI in nIs:
     start_time = time.time()
-    print(f"Starting N={N} at time: {start_time}")
+    print(f"Starting nI={nI}")
     grid = SphereGrid(nI, N, R)
     solver = DG(grid, LinearSWE(g, D))
     mu = np.tensordot(centre, grid.x, axes=1) / R
@@ -62,61 +61,61 @@ for N in Ns:
     q = solver.run(q, T)
     errs.append(np.abs(q[0] - exact(mu, T)).max())
     end_time = time.time()
-    print(f"N={N}  max err at T = {errs[-1]:.2e} m")
-    print(f"Compute time: {end_time-start_time}")
+    print(f"nI={nI}  max err at T = {errs[-1]:.2e} m")
+    print(f"Compute time: {end_time-start_time:.3f}")
 
 # --- propagation run for N = N_plot, saving the 3D field at every frame ---
-grid = SphereGrid(nI, N_plot, R)
-solver = DG(grid, LinearSWE(g, D))
-mu = np.tensordot(centre, grid.x, axes=1) / R
+# grid = SphereGrid(nI, N, R)
+# solver = DG(grid, LinearSWE(g, D))
+# mu = np.tensordot(centre, grid.x, axes=1) / R
 
-times = np.linspace(0, T, n_frames + 1)
-q = np.zeros((4, grid.K, grid.Nq, grid.Nq))
-q[0] = zeta0(mu)
-zeta_num = [q[0].copy()]
-for k in range(1, len(times)):
-    q = solver.run(q, times[k] - times[k - 1])
-    zeta_num.append(q[0].copy())
-zeta_num = np.array(zeta_num)                          # (n_frames+1, K, Nq, Nq)
-zeta_ex = np.array([exact(mu, t) for t in times])      # (n_frames+1, K, Nq, Nq)
+# times = np.linspace(0, T, n_frames + 1)
+# q = np.zeros((4, grid.K, grid.Nq, grid.Nq))
+# q[0] = zeta0(mu)
+# zeta_num = [q[0].copy()]
+# for k in range(1, len(times)):
+#     q = solver.run(q, times[k] - times[k - 1])
+#     zeta_num.append(q[0].copy())
+# zeta_num = np.array(zeta_num)                          # (n_frames+1, K, Nq, Nq)
+# zeta_ex = np.array([exact(mu, t) for t in times])      # (n_frames+1, K, Nq, Nq)
 
 # Save results. Load with: np.load("gaussian_hump.npy", allow_pickle=True).item()
-np.save(Path(__file__).with_name("gaussian_hump.npy"), {
-    "R": R, "g": g, "D": D, "A": A, "sigma": sigma, "nI": nI, "c": c, "T": T,
+np.save(Path(__file__).with_name("gaussian_hump_Hconvergence.npy"), {
+    "R": R, "g": g, "D": D, "A": A, "sigma": sigma, "c": c, "T": T,
     # p-convergence at t = T
-    "N": np.array(Ns), "err_max": np.array(errs),
+    "nI": np.array(nIs), "err_max": np.array(errs),
     # propagation run for N = N_plot
-    "N_plot": N_plot, "K": grid.K, "times": times,
+    "N": N, "K": grid.K, #"times": times,
     "x": grid.x,                 # (3, K, Nq, Nq) node coordinates [m]
     "EToV": grid.mesh.EToV, "VX": grid.mesh.VX,
-    "zeta_num": zeta_num,        # (n_frames+1, K, Nq, Nq) DG solution [m]
-    "zeta_exact": zeta_ex,       # (n_frames+1, K, Nq, Nq) exact solution at the nodes [m]
+    #"zeta_num": zeta_num,        # (n_frames+1, K, Nq, Nq) DG solution [m]
+    #"zeta_exact": zeta_ex,       # (n_frames+1, K, Nq, Nq) exact solution at the nodes [m]
 })
 
 # --- 1D snapshots against the exact series ---
-theta_deg = np.degrees(np.arccos(np.clip(mu, -1, 1))).ravel()
-theta_fine = np.linspace(0, np.pi, 1000)
-snap = [0, n_frames // 4, n_frames // 2, 3 * n_frames // 4, n_frames]
+# theta_deg = np.degrees(np.arccos(np.clip(mu, -1, 1))).ravel()
+# theta_fine = np.linspace(0, np.pi, 1000)
+# snap = [0, n_frames // 4, n_frames // 2, 3 * n_frames // 4, n_frames]
 
-fig, axes = plt.subplots(len(snap), 1, figsize=(8, 10), sharex=True)
-for ax, k in zip(axes, snap):
-    ax.plot(theta_deg, zeta_num[k].ravel(), ".", ms=1.5, color="C0", label="DG nodes")
-    ax.plot(np.degrees(theta_fine), exact(np.cos(theta_fine), times[k]), "-", color="C3", lw=1, label="exact")
-    ax.set_ylabel(r"$\zeta$ [m]")
-    ax.set_title(f"t = {times[k]/3600:.1f} h", fontsize=10)
-    ax.grid(alpha=0.3)
-axes[0].legend(loc="upper right")
-axes[-1].set_xlabel("angular distance from hump centre [deg]")
-fig.suptitle(f"Gaussian hump, A={A:.0f} m, $\\sigma$={sigma/1e3:.0f} km, $n_I$={nI}, N={N_plot}, K={grid.K}")
-fig.tight_layout()
-fig.savefig(Path(__file__).with_name("gaussian_hump_snapshots.png"), dpi=150)
+# fig, axes = plt.subplots(len(snap), 1, figsize=(8, 10), sharex=True)
+# for ax, k in zip(axes, snap):
+#     ax.plot(theta_deg, zeta_num[k].ravel(), ".", ms=1.5, color="C0", label="DG nodes")
+#     ax.plot(np.degrees(theta_fine), exact(np.cos(theta_fine), times[k]), "-", color="C3", lw=1, label="exact")
+#     ax.set_ylabel(r"$\zeta$ [m]")
+#     ax.set_title(f"t = {times[k]/3600:.1f} h", fontsize=10)
+#     ax.grid(alpha=0.3)
+# axes[0].legend(loc="upper right")
+# axes[-1].set_xlabel("angular distance from hump centre [deg]")
+# fig.suptitle(f"Gaussian hump, A={A:.0f} m, $\\sigma$={sigma/1e3:.0f} km, $n_I$={nI}, N={N_plot}, K={grid.K}")
+# fig.tight_layout()
+# fig.savefig(Path(__file__).with_name("gaussian_hump_snapshots.png"), dpi=150)
 
-fig2, ax2 = plt.subplots(figsize=(5, 4))
-ax2.semilogy(Ns, errs, "o-")
-ax2.set_xlabel("polynomial order $N$")
-ax2.set_ylabel(r"max error in $\zeta$ at south pole arrival [m]")
-ax2.set_title(f"Gaussian hump, $n_I$={nI}, t = {T/3600:.1f} h")
-ax2.grid(True, which="both", alpha=0.3)
-fig2.tight_layout()
-fig2.savefig(Path(__file__).with_name("gaussian_hump_convergence.png"), dpi=150)
-plt.show()
+# fig2, ax2 = plt.subplots(figsize=(5, 4))
+# ax2.semilogy(Ns, errs, "o-")
+# ax2.set_xlabel("polynomial order $N$")
+# ax2.set_ylabel(r"max error in $\zeta$ at south pole arrival [m]")
+# ax2.set_title(f"Gaussian hump, $n_I$={nI}, t = {T/3600:.1f} h")
+# ax2.grid(True, which="both", alpha=0.3)
+# fig2.tight_layout()
+# fig2.savefig(Path(__file__).with_name("gaussian_hump_convergence.png"), dpi=150)
+# plt.show()
