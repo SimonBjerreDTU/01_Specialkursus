@@ -1,5 +1,5 @@
 import numpy as np
-from .geo import SphereGrid
+from .geo import SphereGrid, cross_prod
 
 class LinearSWE:
     def __init__(self, g, D):
@@ -15,6 +15,42 @@ class LinearSWE:
 
     def max_speed(self, q):
         return np.sqrt(self.g * self.D)
+
+    def source(self, q):
+        return 0.0
+
+class NonlinearSWE:
+    def __init__(self, g, grid, Omega):
+        self.g, self.D = g, grid
+        self.f = 2*Omega*grid.x[2] / grid.R
+
+    def flux(self, q):
+        h, m = q[0], q[1:]
+        u = m/h
+        F = np.zeros((3,) + q.shape)
+        for j in range(3):
+            F[j, 0] = m[j]
+            F[j, 1] = m * u[j]
+            F[j, 1 + j] += 0.5*self.g * h**2
+        return F
+
+    def max_speed(self, q):
+        return np.linalg.norm(q[1:] / q[0], axis=0) + np.sqrt(self.g * q[0])
+
+    def source(self, q):
+        S = np.zeros_like(q)
+        S[1:] = -self.f * cross_prod(self.grid.n, q[1:])
+        return S
+
+class Advection:
+    # For test 1 - Cosine Bell
+    def flux(self, q):
+        F = np.zeros((3,) + q.shape)
+        F[:, 0] = q[0] * q[1:]
+        return F
+
+    def max_speed(self, q):
+        return np.linalg.norm(q[1:], axis=0)
 
     def source(self, q):
         return 0.0
