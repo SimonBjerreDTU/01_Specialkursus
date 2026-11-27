@@ -1,0 +1,125 @@
+\section{Ambient spherical formulation}
+We define a region $\Omega$ on the sphere of radius $R$, $h$ is the height of the water column, and we assume hydrostatic pressure. The bottom is at the elevation $b(\mathbf{x})$ above the sphere, which is the mean sea level, so $b<0$ in the ocean and $b>0$ on land, and the free surface is at the elevation $\zeta = h + b$. We denote the velocity vector as $\mathbf{u}$, the outward normal on the domain as $\hat{\mathbf{n}}$ and the outward normal for the sphere as $\mathbf{n}$.
+
+% ---------------------------------------------------------------------
+\subsection{Mass conservation}
+We use the same observations about mass as in the Cartesian formulation: mass is conserved, so the change of mass inside the domain should be equal to the net mass flowing out of the domain. Since the bottom does not move in time, the bathymetry does not enter the mass balance. We then go on to apply the divergence theorem, but now we are on a curved surface, where the divergence theorem is given by (see p.~297, Th.~2.10 in \cite{Dziuk_Elliott_2013}):
+\begin{equation}\label{eq:sph-divthm}
+    \int_\Omega\nabla_s\cdot(h\mathbf{u})\,dA = \oint_{\partial\Omega}(h\mathbf{u})\cdot\hat{\mathbf{n}}\,dS + \int_\Omega H\,(h\mathbf{u})\cdot\mathbf{n}\,dA
+\end{equation}
+where $H = \nabla_s\cdot\mathbf{n} = 2/R$ is the total curvature for a sphere. Because $h\mathbf{u}$ is tangential, the last term on the right hand side of eq.~\eqref{eq:sph-divthm} is zero, therefore we have the same mass conservation as in Cartesian coordinates:
+\begin{equation*}
+    \frac{\partial h}{\partial t} + \nabla_s\cdot(h\mathbf{u}) = 0
+\end{equation*}
+This is our mass conservation.
+
+% ---------------------------------------------------------------------
+\subsection{Momentum conservation}
+Now for the momentum conservation, it is the same considerations as for the Cartesian coordinates (eq.~\ref{eq:flat-momentum}).
+
+\paragraph{Momentum flux}
+There are still advective and pressure terms in spherical coordinates. The bottom does not change the pressure in the column: it is still hydrostatic, $p = g(R + b + h - r)$ for $R + b\leq r\leq R + b + h$, where $r = |\mathbf{x}|$ is the distance from the centre of the Earth, so integrating from the bottom to the surface gives $\frac12gh^2$, as in section 2. The advective term is already fine on the curved surface. But in order for the pressure term to be correctly defined on the curved surface we need the divergence theorem to hold, and it only holds if each row of the tensor it is applied to is tangential. This means that $\mathbf{T}\mathbf{n} = 0$ for a tensor $\mathbf{T}$. For the two terms of the flux tensor defined in Cartesian coordinates (eq.~\ref{eq:flat-flux}) we have:
+\begin{itemize}
+    \item Advective: $(h\mathbf{u}\otimes\mathbf{u})\mathbf{n} = h\mathbf{u}(\mathbf{u}\cdot\mathbf{n}) = 0$
+    \item Pressure: $\mathbf{I}\mathbf{n} = \mathbf{n}\neq0$
+\end{itemize}
+We need the tensor to be tangential, therefore we use the projection operator $\mathbf{P} = \mathbf{I} - \mathbf{n}\mathbf{n}^T$ instead of the identity operator. This can be done because the operators agree on the boundary, since $\mathbf{I}\hat{\mathbf{n}} = \hat{\mathbf{n}} = \mathbf{P}\hat{\mathbf{n}}$. We want the boundary integrand to be unchanged, therefore the pressure term of the flux is
+\begin{equation*}
+    \frac12gh^2\mathbf{P}.
+\end{equation*}
+We write the momentum flux tensor:
+\begin{equation}\label{eq:sph-flux}
+    \mathbf{F} = h\mathbf{u}\otimes\mathbf{u} + \frac12gh^2\mathbf{P}
+\end{equation}
+
+% ---------------------------------------------------------------------
+\subsection{The SWEs in ambient spherical formulation}
+Using the results from the above sections we get our SWEs in spherical formulation:
+\begin{align}
+    \frac{\partial h}{\partial t} + \nabla_s\cdot(h\mathbf{u}) &= 0 \label{eq:system1}\\
+    \frac{\partial}{\partial t}(h\mathbf{u}) + \nabla_s\cdot\mathbf{F} &= -2\boldsymbol{\omega}\times(h\mathbf{u}) - gh\nabla_s b + \lambda\mathbf{n} \label{eq:system2}
+\end{align}
+where $\mathbf{F} = h\mathbf{u}\otimes\mathbf{u} + \frac12gh^2\mathbf{P}$ and $\lambda = -\frac{h|\mathbf{u}|^2}{R} - \frac{gh^2}{R} + 2h\,\mathbf{n}\cdot(\boldsymbol{\omega}\times\mathbf{u})$. For a flat bottom the bathymetry term vanishes.
+
+% ---------------------------------------------------------------------
+\subsection{Lake at rest and wave speed}\label{sec:sph-rest}
+Here we take a lot of inspiration from \cite{bonev2018discontinuous}, they use the lake at rest as a steady-state solution for which the scheme needs to be well-balanced, we use the same test for our scheme and equations in order to see if we are on the right track.
+
+\paragraph{Lake at rest}
+A fluid at rest with a flat free surface, $\mathbf{u} = 0$ and $h + b = \zeta_0$ constant, is a steady state of eqs.~\eqref{eq:system1}--\eqref{eq:system2}. The mass equation is satisfied since $h\mathbf{u} = 0$. In the momentum equation the advective and Coriolis terms vanish, and with the pressure term eq.~\eqref{eq:sph-pressure} and $\lambda = -gh^2/R$ for $\mathbf{u} = 0$, it reads
+\begin{equation*}
+    gh\nabla_s h - \frac{gh^2}{R}\mathbf{n} = -gh\nabla_s b - \frac{gh^2}{R}\mathbf{n}
+    \quad\Leftrightarrow\quad gh\nabla_s(h + b) = 0,
+\end{equation*}
+which holds since $h + b = \zeta_0$. The normal parts balance each other, and in the tangential part the pressure gradient balances the bottom force. This steady state is called the lake at rest \cite{bonev2018discontinuous}. A tsunami is a small perturbation of it, while the two balanced terms can be large. Over a continental slope with the gradient $0.05$ in $4000$ m of water, $gh|\nabla_s b|\approx2000$ m$^2$/s$^2$, whereas a tsunami with the amplitude $1$ m and the wavelength $500$ km has $gh|\nabla_s\zeta|\approx0.5$ m$^2$/s$^2$. A relative error of a few times $10^{-4}$ in the balance is thus as large as the tsunami itself. A numerical scheme must therefore preserve the lake at rest exactly, i.e.\ be well-balanced, otherwise the discretization errors of the two balanced terms produce spurious waves. We return to this in section 4.
+
+% ========================================================================
+\subsection{Advection on the sphere}\label{sec:sph-advection}
+Before solving the SWEs we test the scheme on the simplest equation of the same form: the transport of the height $h$ by a prescribed tangential velocity field $\mathbf{v}(\mathbf{x})$. This is the mass equation \eqref{eq:system1} with $\mathbf{u}$ replaced by $\mathbf{v}$, and the momentum equation removed,
+\begin{equation}\label{eq:advection}
+    \frac{\partial h}{\partial t} + \nabla_s\cdot(h\mathbf{v}) = 0 .
+\end{equation}
+In the form of eq.~\eqref{eq:conservation} this is $q = h$, $\mathbf{F}(q) = h\mathbf{v}$ and $S = 0$. Since $\mathbf{v}$ does not depend on $h$, the equation is linear, and its only wave speed is the transport speed $|\mathbf{v}|$.
+
+Following test case 1 of \cite{williamson1992standard} we use a solid-body rotation about an axis $\mathbf{e}$, tilted by the angle $\alpha$ from the polar axis,
+\begin{equation}\label{eq:sbr}
+    \mathbf{v} = \frac{u_0}{R}\,\mathbf{e}\times\mathbf{x}, \qquad
+    \mathbf{e} = (-\sin\alpha,\, 0,\, \cos\alpha), \qquad
+    u_0 = \frac{2\pi R}{12\ \text{days}} .
+\end{equation}
+The field is tangential, $\mathbf{v}\cdot\mathbf{n} = (\mathbf{e}\times\mathbf{x})\cdot\mathbf{x}/R^2 = 0$, and divergence free, $\nabla_s\cdot\mathbf{v} = 0$, so eq.~\eqref{eq:advection} reduces to $\partial_t h + \mathbf{v}\cdot\nabla_s h = 0$: the initial field is rotated rigidly about $\mathbf{e}$ and returns to its starting point after $12$ days. This gives an exact solution at all times. Varying $\alpha$ moves the path of the flow relative to the grid: $\alpha = 0$ is along the equator, while $\alpha = \pi/2$ passes directly over the poles.
+
+The initial condition is the cosine bell
+\begin{equation}\label{eq:cosinebell}
+    h(\mathbf{x},0) =
+    \begin{cases}
+        \frac{h_0}{2}\left(1 + \cos\frac{\pi r}{R_b}\right), & r < R_b,\\
+        0, & r \geq R_b,
+    \end{cases}
+    \qquad r = R\arccos\left(\frac{\mathbf{x}_c\cdot\mathbf{x}}{R^2}\right),
+\end{equation}
+with $h_0 = 1000$ m, $R_b = R/3$ and the centre $\mathbf{x}_c$ on the equator. The bell is only $C^1$: its second derivative jumps at $r = R_b$. We therefore expect algebraic rather than spectral convergence under $p$-refinement.
+% ========================================================================
+
+\subsection{Linearized SWEs}
+We assume a flat bottom in this project and want to test on the linearized SWEs, therefore we first write the nonlinear equation:
+$$
+\frac{\partial q}{\partial t} + \nabla_s \cdot \mathbf{F}(q) = S(x,q)
+$$
+Since we assume a flat bottom, that the Coriolis has little influence on the test timescale of 40-60h and that the normal part is resolved by projecting onto the tangent plane we let $S(x,q)=0$. We linearize around the lake at rest with a flat bottom, $q_0$: $h_0 = D$, $\mathbf{u}_0 = 0$,
+and neglect the Coriolis force. For the nonlinear case, Coriolis is kept in the model. We add a small perturbation,
+\begin{equation*}
+    h = D + \epsilon\zeta', \qquad \mathbf{u} = \epsilon\mathbf{u}', \qquad \epsilon \ll 1,
+\end{equation*}
+insert it in eqs.~\eqref{eq:system1}--\eqref{eq:system2} and collect powers of $\epsilon$.
+The mass equation becomes
+\begin{equation}\label{eq:LinearMass}
+    \partial_t(D + \epsilon\zeta') + \nabla_s\cdot\big((D + \epsilon\zeta')\,\epsilon\mathbf{u}'\big)
+    = \epsilon\big(\partial_t\zeta' + \nabla_s\cdot(D\mathbf{u}')\big) + \epsilon^2\,\nabla_s\cdot(\zeta'\mathbf{u}') = 0 .
+\end{equation}
+In the momentum equation the time derivative and the flux become
+\begin{align}
+    \partial_t(h\mathbf{u}) &= \epsilon\,\partial_t(D\mathbf{u}') + \epsilon^2\,\partial_t(\zeta'\mathbf{u}'), \label{eq:LinearMomentumTime}\\
+    h\mathbf{u}\otimes\mathbf{u} + \tfrac12 gh^2\mathbf{I}
+    &= \tfrac12 gD^2\mathbf{I} + \epsilon\, gD\zeta'\mathbf{I}
+    + \epsilon^2\big(\tfrac12 g\zeta'^2\mathbf{I} + D\,\mathbf{u}'\otimes\mathbf{u}'\big) + \mathcal{O}(\epsilon^3). \label{eq:LinearMomentumFlux}
+\end{align}
+The $\epsilon^0$ terms vanish, since $\partial_t D = 0$ and $\nabla_s\cdot(\tfrac12 gD^2\mathbf{I}) = 0$ for constant $D$. We keep the $\mathcal{O}(\epsilon)$ terms, divide by $\epsilon$ and neglect $\mathcal{O}(\epsilon^2)$.
+With $\mathbf{m} = D\mathbf{u}'$ we get the linear SWE
+\begin{align}
+    \partial_t\zeta + \nabla_s\cdot\mathbf{m} &= 0 \label{eq:LinearSys1},\\
+    \partial_t\mathbf{m} + \nabla_s\cdot(gD\zeta\,\mathbf{I}) &= 0 \label{eq:LinearSys2}
+\end{align}
+
+\subsection{Exact Legendre Solution}
+We test our linear solver with against an exact solution for the Gaussian bump on a sphere, the derivation for the exact solution can be found in the note at \cite{Note_Jayshree}. We modify the system in \eqref{eq:LinearSys1}, \eqref{eq:LinearSys2} by differentiating \eqref{eq:LinearSys1} in time and inserting \eqref{eq:LinearSys2}:
+\begin{align*}
+    \partial_{tt}\zeta + \nabla_s\cdot\partial_t\mathbf{m} = \partial_{tt}\zeta + \nabla_s\cdot(-\nabla_s\cdot(gD\zeta\mathbf{I})) \Rightarrow \\
+    \partial_{tt}\zeta = gD\nabla_s\cdot(\nabla_s\cdot(\zeta\mathbf{I})) = gD\nabla_s\cdot(\nabla_s\zeta) = gD\Delta_s\zeta
+\end{align*}
+We see this is exactly the wave equation with $c^2=gD$.
+
+In the full derivation spherical harmonics are used, however the Gaussian only depends on the angle $\alpha$ from its centre C. We let C be the pole, then only $m=0$ terms are kept. By rotating so the Gaussian bump sits on the pole, we can use Legendre polynomials for the exact solution. For the bump we use a width $\sigma = 800km$ and we truncate the Legendre series at $L=200$. 
+
+In order to check if we get proper behaviour at the poles as expected with the mesh descriped below then we move our Gaussian off-center and let $\theta_0=30\degree N$ and $\phi_0 = 140\degree E$ in order to check if the wave moves over the north or south poles correctly
+

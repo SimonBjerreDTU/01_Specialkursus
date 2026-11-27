@@ -1,0 +1,56 @@
+\newpage
+\section{Cartesian formulation (flat)}\label{sec:flat}
+We define a region $\Omega$, $h$ is the height of the water column, and we assume hydrostatic pressure. The bottom is at the elevation $b(x,y)$ above the reference level $z = 0$, the mean sea level, and the free surface is at the elevation $\zeta = h + b$. We denote the velocity vector as $\mathbf{u}$, the outward normal on the domain as $\hat{\mathbf{n}}$, and the local vertical is $\hat{\mathbf{k}}$.
+
+% ---------------------------------------------------------------------
+\subsection{Mass conservation}\label{sec:car-Mass}
+Using the density $\rho$ we can write the mass per unit area: $\rho h$. So the total mass in $\Omega$ is then:
+\begin{equation*}
+    \int_\Omega\rho h\,dA
+\end{equation*}
+We assume $\rho = 1$ and constant. Since the bottom does not move in time, only the height of the water column changes the mass in $\Omega$. We know that mass is conserved: the change of mass inside the domain should be equal to the net mass flowing out of the boundary of the domain. We write this as:
+\begin{equation*}
+    \frac{d}{dt}\int_\Omega\rho h\,dA = -\oint_{\partial\Omega}(h\mathbf{u})\cdot\hat{\mathbf{n}}\,dS
+\end{equation*}
+We use the divergence theorem:
+\begin{equation*}
+    \frac{d}{dt}\int_\Omega h\,dA = -\oint_{\partial\Omega}(h\mathbf{u})\cdot\hat{\mathbf{n}}\,dS = -\int_\Omega\nabla\cdot(h\mathbf{u})\,dA
+\end{equation*}
+Rearranging:
+\begin{equation}\label{eq:flat-mass-integral}
+    \int_\Omega\frac{\partial h}{\partial t} + \nabla\cdot(h\mathbf{u})\,dA = 0
+\end{equation}
+The integral vanishes for every $\Omega$. Suppose the integrand is non-zero at a point $p$, say positive. Choose $\Omega$ to be a small disc around $p$; then the integral is positive, so for eq.~\eqref{eq:flat-mass-integral} to hold we need:
+\begin{equation}\label{eq:flat-mass}
+    \frac{\partial h}{\partial t} + \nabla\cdot(h\mathbf{u}) = 0
+\end{equation}
+This is our mass conservation.
+
+% ---------------------------------------------------------------------
+\subsection{Momentum conservation}
+Now for the momentum conservation, we have:
+\begin{equation}\label{eq:flat-momentum}
+    \frac{d}{dt}\int_\Omega h\mathbf{u}\,dA = -\oint_{\partial\Omega}(\text{momentum flux})\cdot\hat{\mathbf{n}}\,dS + \text{force}
+\end{equation}
+
+\paragraph{Momentum flux}
+There are two parts of the flux:
+
+Advective:
+\begin{equation*}
+    h\mathbf{u}\otimes\mathbf{u}
+\end{equation*}
+Pressure: We assume hydrostatic balance, so the pressure at the bottom is $\rho gh$. Integrating from the bottom to the surface:
+\begin{equation*}
+    \int_b^{b+h}\rho g(b + h - z)\,dz = \frac12\rho gh^2 \quad\Rightarrow\quad \frac12gh^2
+\end{equation*}
+The integrated pressure only depends on the height of the water column, not on the elevation of the bottom. Pressure in a fluid acts equally in all directions, so the pressure term is:
+\begin{equation*}
+    \frac12gh^2\mathbf{I}
+\end{equation*}
+The momentum flux tensor is:
+\begin{equation}\label{eq:flat-flux}
+    \mathbf{F} = h\mathbf{u}\otimes\mathbf{u} + \frac12gh^2\mathbf{I}
+\end{equation}
+
+Thus we have our SWEs in a flat domain in Cartesian formulation. For $\mathbf{u} = 0$ the momentum equation reduces to $\nabla(\frac12gh^2) + gh\nabla b = gh\nabla(h + b) = 0$, so a fluid at rest with a flat free surface, $h + b$ constant, is a steady state. This is the lake at rest, which is discussed on the sphere in section \ref{sec:sph-rest}.

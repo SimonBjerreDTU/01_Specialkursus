@@ -1,0 +1,45 @@
+\documentclass[a4paper]{article}
+% Brug denne, hvis der kun printes på den ene side!
+%\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{subfiles}
+\usepackage{gensymb}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{bm}
+\usepackage[backend=biber,style=numeric,sorting=none]{biblatex} % Package for bibliography (citing)
+\addbibresource{bibliography.bib}
+
+% geometry-pakken bruges til f.eks. at ændre margnerne.
+% Gør ikke margnerne smallere end dette - Jakob bliver ikke glad!
+\usepackage[rmargin=3.2cm,tmargin=3.5cm]{geometry}
+% Disse to linjer sikrer, at der bliver mellemrum i stedet for indrykning ved afsnit
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex plus 0.5ex minus 0.2ex}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[table,xcdraw]{xcolor}
+\usepackage{gensymb}
+\usepackage{multirow}
+\usepackage{pdfpages}
+
+% Her begynder selve dokumentet
+\begin{document}
+\input{Forside}
+\tableofcontents
+
+% \input{Afsnit/Notation}
+\input{CartesianForm.tex}
+\input{AmbientSphere.tex}
+\input{Mesh.tex}
+\input{Discretization.tex}
+\input{Results.tex}
+\input{Future.tex}
+
+\newpage
+\printbibliography[heading=bibintoc,title={Bibliography}]
+\end{document}

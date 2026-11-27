@@ -1,0 +1,55 @@
+\contentsline {section}{\numberline {1}Cartesian formulation (flat)}{2}{}%
+\contentsline {subsection}{\numberline {1.1}Mass conservation}{2}{}%
+\contentsline {subsection}{\numberline {1.2}Momentum conservation}{2}{}%
+\contentsline {paragraph}{Momentum flux}{2}{}%
+\contentsline {section}{\numberline {2}Ambient spherical formulation}{3}{}%
+\contentsline {subsection}{\numberline {2.1}Mass conservation}{3}{}%
+\contentsline {subsection}{\numberline {2.2}Momentum conservation}{3}{}%
+\contentsline {paragraph}{Momentum flux}{3}{}%
+\contentsline {subsection}{\numberline {2.3}The SWEs in ambient spherical formulation}{4}{}%
+\contentsline {subsection}{\numberline {2.4}Lake at rest and wave speed}{4}{}%
+\contentsline {paragraph}{Lake at rest}{4}{}%
+\contentsline {subsection}{\numberline {2.5}Advection on the sphere}{5}{}%
+\contentsline {subsection}{\numberline {2.6}Linearized SWEs}{5}{}%
+\contentsline {subsection}{\numberline {2.7}Exact Legendre Solution}{6}{}%
+\contentsline {section}{\numberline {3}Mesh}{6}{}%
+\contentsline {subsection}{\numberline {3.1}Construction}{6}{}%
+\contentsline {paragraph}{Icosahedron}{6}{}%
+\contentsline {paragraph}{Subdivision}{6}{}%
+\contentsline {paragraph}{Triangles to quadrilaterals}{7}{}%
+\contentsline {paragraph}{Projection and merging}{7}{}%
+\contentsline {subsection}{\numberline {3.2}Connectivity}{8}{}%
+\contentsline {section}{\numberline {4}Discretization of spherical SWEs}{8}{}%
+\contentsline {subsection}{\numberline {4.1}Conservation form}{9}{}%
+\contentsline {paragraph}{Pressure term}{9}{}%
+\contentsline {paragraph}{Flux}{9}{}%
+\contentsline {paragraph}{Source}{9}{}%
+\contentsline {subsection}{\numberline {4.2}Element mapping}{10}{}%
+\contentsline {paragraph}{Icosahedral grid}{10}{}%
+\contentsline {paragraph}{Jacobian}{10}{}%
+\contentsline {subsection}{\numberline {4.3}Local polynomial approximation}{11}{}%
+\contentsline {paragraph}{Nodal basis}{11}{}%
+\contentsline {paragraph}{Local solution}{11}{}%
+\contentsline {paragraph}{Bathymetry}{12}{}%
+\contentsline {paragraph}{Integration}{12}{}%
+\contentsline {paragraph}{Differentiation}{12}{}%
+\contentsline {paragraph}{Summation by parts}{12}{}%
+\contentsline {paragraph}{Exact and inexact integration}{13}{}%
+\contentsline {subsection}{\numberline {4.4}Weak and strong forms}{13}{}%
+\contentsline {paragraph}{Weak form}{13}{}%
+\contentsline {paragraph}{Lake at rest}{14}{}%
+\contentsline {paragraph}{Mass conservation}{14}{}%
+\contentsline {subsection}{\numberline {4.5}Numerical flux}{15}{}%
+\contentsline {paragraph}{Flux Jacobian}{15}{}%
+\contentsline {subsection}{\numberline {4.6}Discrete operators and semi-discrete system}{16}{}%
+\contentsline {paragraph}{Semi-discrete system}{16}{}%
+\contentsline {paragraph}{Lagrange multiplier}{16}{}%
+\contentsline {paragraph}{Summary}{16}{}%
+\contentsline {subsection}{\numberline {4.7}Time integration and stabilisation}{17}{}%
+\contentsline {paragraph}{Runge--Kutta}{17}{}%
+\contentsline {paragraph}{Time step}{17}{}%
+\contentsline {paragraph}{Post-processing}{17}{}%
+\contentsline {section}{\numberline {5}Results}{17}{}%
+\contentsline {subsection}{\numberline {5.1}Verification of the geometry}{17}{}%
+\contentsline {section}{\numberline {6}Future work and outlook}{18}{}%
+\contentsline {section}{Bibliography}{19}{}%

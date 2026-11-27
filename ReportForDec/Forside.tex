@@ -1,0 +1,30 @@
+% titlepage-miljøet bruges til at sætte en forside op og gør blandt andet at der ikke kommer sidetal
+% på og at der automatisk bliver skiftet til en ny side når den er færdig
+% At opsætte en forside manuelt kan godt blive lidt kompliceret at se på og man vil derfor ofte
+% rykke kode som dette ud i en seperat fil f.eks. forside.tex og inkludere den her med \input{forside}
+\begin{titlepage}
+\centering
+% For forklaring af vspace og stretch, se side 115 i ".. not so short .."
+% www.ctan.org/tex-archive/info/lshort/english/lshort.pdf
+\vspace*{\stretch{1}}
+% rule laver en linje på tværs af siden
+\rule{\textwidth}{1mm}\\
+\vspace{1cm}
+% Her vælger en kæmpe skrifttype og fed skrift
+\Huge\bfseries DGFEM Formulation of spherical Linear Shallow Water Equations\\
+\vspace{0.7cm}
+\rule{\textwidth}{1mm}\\
+\vspace{3cm}
+\large
+Simon Bjerre (s224059) \\
+\vspace{1.7cm}
+
+\vspace*{\stretch{2}}
+% Nulstiller skriftstørrelse og type (f.eks. fed)
+\normalsize
+\begin{flushleft}
+Report for special course.\\
+Danmarks Tekniske Universitet\\
+
+\end{flushleft}
+\end{titlepage}

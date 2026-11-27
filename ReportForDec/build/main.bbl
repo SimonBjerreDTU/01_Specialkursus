@@ -1,0 +1,244 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{none/global//global/global/global}
+    \entry{Dziuk_Elliott_2013}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=5b6aa85c71eb03843db9da9ca31b527c}{%
+           family={Dziuk},
+           familyi={D\bibinitperiod},
+           given={Gerhard},
+           giveni={G\bibinitperiod}}}%
+        {{hash=54bfe96cd1bbbaefdea7fe97e2d332a7}{%
+           family={Elliott},
+           familyi={E\bibinitperiod},
+           given={Charles\bibnamedelima M.},
+           giveni={C\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+      }
+      \strng{namehash}{9b1ebd4855c9e29849e924a84b30961d}
+      \strng{fullhash}{9b1ebd4855c9e29849e924a84b30961d}
+      \strng{fullhashraw}{9b1ebd4855c9e29849e924a84b30961d}
+      \strng{bibnamehash}{9b1ebd4855c9e29849e924a84b30961d}
+      \strng{authorbibnamehash}{9b1ebd4855c9e29849e924a84b30961d}
+      \strng{authornamehash}{9b1ebd4855c9e29849e924a84b30961d}
+      \strng{authorfullhash}{9b1ebd4855c9e29849e924a84b30961d}
+      \strng{authorfullhashraw}{9b1ebd4855c9e29849e924a84b30961d}
+      \field{sortinit}{1}
+      \field{sortinithash}{4f6aaa89bab872aa0999fec09ff8e98a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Acta Numerica}
+      \field{title}{Finite element methods for surface PDEs}
+      \field{volume}{22}
+      \field{year}{2013}
+      \field{pages}{289\bibrangedash 396}
+      \range{pages}{108}
+      \verb{doi}
+      \verb 10.1017/S0962492913000056
+      \endverb
+    \endentry
+    \entry{bonev2018discontinuous}{article}{}{}
+      \name{author}{4}{}{%
+        {{hash=a9e473c93ebd20f3d927caad0d6a16cd}{%
+           family={Bonev},
+           familyi={B\bibinitperiod},
+           given={Boris},
+           giveni={B\bibinitperiod}}}%
+        {{hash=39aad61f5da02ed4a0982d36111bd4dc}{%
+           family={Hesthaven},
+           familyi={H\bibinitperiod},
+           given={Jan\bibnamedelima S.},
+           giveni={J\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=894e25f4c45659a407f987002aaf1ac8}{%
+           family={Giraldo},
+           familyi={G\bibinitperiod},
+           given={Francis\bibnamedelima X.},
+           giveni={F\bibinitperiod\bibinitdelim X\bibinitperiod}}}%
+        {{hash=fad741566b7f6b27463a2dd5a9b22ec9}{%
+           family={Kopera},
+           familyi={K\bibinitperiod},
+           given={Michal\bibnamedelima A.},
+           giveni={M\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+      }
+      \strng{namehash}{287553663fc8ba4e31c1cde9111091c9}
+      \strng{fullhash}{015b77f799cae55e382f62633d8d4606}
+      \strng{fullhashraw}{015b77f799cae55e382f62633d8d4606}
+      \strng{bibnamehash}{287553663fc8ba4e31c1cde9111091c9}
+      \strng{authorbibnamehash}{287553663fc8ba4e31c1cde9111091c9}
+      \strng{authornamehash}{287553663fc8ba4e31c1cde9111091c9}
+      \strng{authorfullhash}{015b77f799cae55e382f62633d8d4606}
+      \strng{authorfullhashraw}{015b77f799cae55e382f62633d8d4606}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Computational Physics}
+      \field{title}{Discontinuous {G}alerkin scheme for the spherical shallow water equations with applications to tsunami modeling and prediction}
+      \field{volume}{362}
+      \field{year}{2018}
+      \field{pages}{425\bibrangedash 448}
+      \range{pages}{24}
+      \verb{doi}
+      \verb 10.1016/j.jcp.2018.02.008
+      \endverb
+    \endentry
+    \entry{Note_Jayshree}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=ab46a0595b8f8d3787f0729c5fd6620f}{%
+           family={Sarjare},
+           familyi={S\bibinitperiod},
+           given={Jayshree\bibnamedelima Madandal},
+           giveni={J\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+      }
+      \strng{namehash}{ab46a0595b8f8d3787f0729c5fd6620f}
+      \strng{fullhash}{ab46a0595b8f8d3787f0729c5fd6620f}
+      \strng{fullhashraw}{ab46a0595b8f8d3787f0729c5fd6620f}
+      \strng{bibnamehash}{ab46a0595b8f8d3787f0729c5fd6620f}
+      \strng{authorbibnamehash}{ab46a0595b8f8d3787f0729c5fd6620f}
+      \strng{authornamehash}{ab46a0595b8f8d3787f0729c5fd6620f}
+      \strng{authorfullhash}{ab46a0595b8f8d3787f0729c5fd6620f}
+      \strng{authorfullhashraw}{ab46a0595b8f8d3787f0729c5fd6620f}
+      \field{sortinit}{5}
+      \field{sortinithash}{20e9b4b0b173788c5dace24730f47d8c}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{Internal DTU note}
+      \field{title}{Exact solution derivation for wave equation}
+      \field{year}{2026}
+    \endentry
+    \entry{GIRALDO2002499}{article}{}{}
+      \name{author}{3}{}{%
+        {{hash=d0809ed11a78cb10228501ae41c66ef0}{%
+           family={Giraldo},
+           familyi={G\bibinitperiod},
+           given={F.X.},
+           giveni={F\bibinitperiod}}}%
+        {{hash=636678353168d374f051c33e96c5c641}{%
+           family={Hesthaven},
+           familyi={H\bibinitperiod},
+           given={J.S.},
+           giveni={J\bibinitperiod}}}%
+        {{hash=5041f5b4fcacbcdccbd54774b4514d44}{%
+           family={Warburton},
+           familyi={W\bibinitperiod},
+           given={T.},
+           giveni={T\bibinitperiod}}}%
+      }
+      \strng{namehash}{6984b34a6c633c5d84bde98e224ad925}
+      \strng{fullhash}{6984b34a6c633c5d84bde98e224ad925}
+      \strng{fullhashraw}{6984b34a6c633c5d84bde98e224ad925}
+      \strng{bibnamehash}{6984b34a6c633c5d84bde98e224ad925}
+      \strng{authorbibnamehash}{6984b34a6c633c5d84bde98e224ad925}
+      \strng{authornamehash}{6984b34a6c633c5d84bde98e224ad925}
+      \strng{authorfullhash}{6984b34a6c633c5d84bde98e224ad925}
+      \strng{authorfullhashraw}{6984b34a6c633c5d84bde98e224ad925}
+      \field{sortinit}{6}
+      \field{sortinithash}{b33bc299efb3c36abec520a4c896a66d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{0021-9991}
+      \field{journaltitle}{Journal of Computational Physics}
+      \field{number}{2}
+      \field{title}{Nodal High-Order Discontinuous Galerkin Methods for the Spherical Shallow Water Equations}
+      \field{volume}{181}
+      \field{year}{2002}
+      \field{pages}{499\bibrangedash 525}
+      \range{pages}{27}
+      \verb{doi}
+      \verb https://doi.org/10.1006/jcph.2002.7139
+      \endverb
+      \verb{urlraw}
+      \verb https://www.sciencedirect.com/science/article/pii/S0021999102971391
+      \endverb
+      \verb{url}
+      \verb https://www.sciencedirect.com/science/article/pii/S0021999102971391
+      \endverb
+    \endentry
+    \entry{hesthaven2008nodal}{book}{}{}
+      \name{author}{2}{}{%
+        {{hash=39aad61f5da02ed4a0982d36111bd4dc}{%
+           family={Hesthaven},
+           familyi={H\bibinitperiod},
+           given={Jan\bibnamedelima S.},
+           giveni={J\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=21cc194d44bff2dc873217ef656ec050}{%
+           family={Warburton},
+           familyi={W\bibinitperiod},
+           given={Tim},
+           giveni={T\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {New York}%
+      }
+      \list{publisher}{1}{%
+        {Springer}%
+      }
+      \strng{namehash}{2076bfc50205e085ffe3213f5c3f46c8}
+      \strng{fullhash}{2076bfc50205e085ffe3213f5c3f46c8}
+      \strng{fullhashraw}{2076bfc50205e085ffe3213f5c3f46c8}
+      \strng{bibnamehash}{2076bfc50205e085ffe3213f5c3f46c8}
+      \strng{authorbibnamehash}{2076bfc50205e085ffe3213f5c3f46c8}
+      \strng{authornamehash}{2076bfc50205e085ffe3213f5c3f46c8}
+      \strng{authorfullhash}{2076bfc50205e085ffe3213f5c3f46c8}
+      \strng{authorfullhashraw}{2076bfc50205e085ffe3213f5c3f46c8}
+      \field{sortinit}{2}
+      \field{sortinithash}{8b555b3791beccb63322c22f3320aa9a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{series}{Texts in Applied Mathematics}
+      \field{title}{Nodal Discontinuous {G}alerkin Methods: Algorithms, Analysis, and Applications}
+      \field{volume}{54}
+      \field{year}{2008}
+      \verb{doi}
+      \verb 10.1007/978-0-387-72067-8
+      \endverb
+    \endentry
+    \entry{kopriva2006metric}{article}{}{}
+      \name{author}{1}{}{%
+        {{hash=17c0f66cb7e5394bc67042385d407127}{%
+           family={Kopriva},
+           familyi={K\bibinitperiod},
+           given={David\bibnamedelima A.},
+           giveni={D\bibinitperiod\bibinitdelim A\bibinitperiod}}}%
+      }
+      \strng{namehash}{17c0f66cb7e5394bc67042385d407127}
+      \strng{fullhash}{17c0f66cb7e5394bc67042385d407127}
+      \strng{fullhashraw}{17c0f66cb7e5394bc67042385d407127}
+      \strng{bibnamehash}{17c0f66cb7e5394bc67042385d407127}
+      \strng{authorbibnamehash}{17c0f66cb7e5394bc67042385d407127}
+      \strng{authornamehash}{17c0f66cb7e5394bc67042385d407127}
+      \strng{authorfullhash}{17c0f66cb7e5394bc67042385d407127}
+      \strng{authorfullhashraw}{17c0f66cb7e5394bc67042385d407127}
+      \field{sortinit}{3}
+      \field{sortinithash}{ad6fe7482ffbd7b9f99c9e8b5dccd3d7}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Scientific Computing}
+      \field{title}{Metric identities and the discontinuous spectral element method on curvilinear meshes}
+      \field{volume}{26}
+      \field{year}{2006}
+      \field{pages}{301\bibrangedash 327}
+      \range{pages}{27}
+    \endentry
+  \enddatalist
+  \missing{williamson1992standard}
+\endrefsection
+\endinput
+
